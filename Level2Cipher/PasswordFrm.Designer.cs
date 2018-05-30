@@ -28,13 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.txtPassword2 = new System.Windows.Forms.TextBox();
+            this.txtPassword2 = new KeePass.UI.SecureTextBoxEx();
             this.lblPassword2 = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOk = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
+            this.txtPassword = new KeePass.UI.SecureTextBoxEx();
             this.label4 = new System.Windows.Forms.Label();
             this.chkShowPwd = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
@@ -153,13 +153,13 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox txtPassword2;
+        private KeePass.UI.SecureTextBoxEx txtPassword2;
         private System.Windows.Forms.Label lblPassword2;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtPassword;
+        private KeePass.UI.SecureTextBoxEx txtPassword;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.CheckBox chkShowPwd;
     }

@@ -3,3 +3,7 @@
 ################################################################################
 
 /Build/Release
+/Level2Cipher/obj/Release
+/.vs/Level2Cipher/v15
+/Test/Test/bin/Release
+/Test/Test/obj/Release

@@ -20,4 +20,4 @@ Version 1.0
 Version 1.1
 ===========
 
-- Fix for Version 2.9
+- Fix for Version 2.39

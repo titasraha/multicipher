@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="KeePass">
-      <HintPath>..\..\Build\KeePass.exe</HintPath>
+      <HintPath>..\..\..\..\..\Downloads\kp2391\Build\KeePass\Release\KeePass.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

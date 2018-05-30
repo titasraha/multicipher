@@ -16,3 +16,8 @@ Version 1.0
 
 - This is the initial version.
 - Bugs are expected.
+
+Version 1.1
+===========
+
+- Fix for Version 2.39

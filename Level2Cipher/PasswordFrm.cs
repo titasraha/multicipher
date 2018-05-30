@@ -37,8 +37,12 @@ namespace MultiCipher
 {
     public partial class PasswordFrm : Form
     {
-        private SecureEdit m_secPassword = new SecureEdit();
-        private SecureEdit m_secPassword2 = new SecureEdit();
+
+        //private SecureTextBoxEx txtPassword;
+        //private SecureTextBoxEx txtPassword2;
+
+        //private SecureEdit m_secPassword = new SecureEdit();
+        //private SecureEdit m_secPassword2 = new SecureEdit();
         private CompositeKey m_pwd = null;
         private bool m_bIsNew;
 
@@ -50,7 +54,12 @@ namespace MultiCipher
         public PasswordFrm(bool bIsNew)
         {
             m_bIsNew = bIsNew;
+
             InitializeComponent();
+
+            txtPassword.EnableProtection(true);
+            txtPassword2.EnableProtection(true);
+
             lblPassword2.Visible = bIsNew;
             txtPassword2.Visible = bIsNew;
 
@@ -60,7 +69,7 @@ namespace MultiCipher
         private void btnOk_Click(object sender, EventArgs e)
         {
 
-            if (m_bIsNew && !m_secPassword.ContentsEqualTo(m_secPassword2))
+            if (m_bIsNew && txtPassword.Text != txtPassword2.Text)
             {
                 MessageBox.Show(this, "Passwords do not match!", "Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.DialogResult = DialogResult.None;
@@ -69,7 +78,7 @@ namespace MultiCipher
 
             m_pwd = new CompositeKey();
 
-            byte[] pb = m_secPassword.ToUtf8();
+            byte[] pb = txtPassword.TextEx.ReadUtf8();// m_secPassword.ToUtf8();
             m_pwd.AddUserKey(new KcpPassword(pb));
             Array.Clear(pb, 0, pb.Length);
        
@@ -78,26 +87,28 @@ namespace MultiCipher
 
         private void PasswordFrmNew_Load(object sender, EventArgs e)
         {
-            m_secPassword.SecureDesktopMode = false;
-            m_secPassword.Attach(txtPassword, null, true);
-            if (m_bIsNew)
-                m_secPassword2.Attach(txtPassword2, null, true);
+            //m_secPassword.SecureDesktopMode = false;
+            //m_secPassword.Attach(txtPassword, null, true);
+            //if (m_bIsNew)
+            //    m_secPassword2.Attach(txtPassword2, null, true);
         }
 
         private void PasswordFrmNew_FormClosing(object sender, FormClosingEventArgs e)
         {
-            m_secPassword.Detach();
-            if (m_bIsNew)
-                m_secPassword2.Detach();
+            //m_secPassword.Detach();
+            //if (m_bIsNew)
+            //    m_secPassword2.Detach();
         }
 
         private void chkShowPwd_CheckedChanged(object sender, EventArgs e)
         {
             bool bHide = !chkShowPwd.Checked;
 
-            m_secPassword.EnableProtection(bHide);
+            txtPassword.EnableProtection(bHide);
+            //m_secPassword.EnableProtection(bHide);
             if (m_bIsNew)
-                m_secPassword2.EnableProtection(bHide);
+                txtPassword2.EnableProtection(bHide);
+                //m_secPassword2.EnableProtection(bHide);
             
 
         }

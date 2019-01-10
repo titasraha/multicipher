@@ -3,7 +3,7 @@ This is a dual cipher model with independent keys that uses two ciphers to encry
 
 
 ## Version 2.0 for KeePass >= 2.41
-This is a major rework of the original version 1.x of the plugin, it is recomended that older version is no longer used as this version attempts to make sure that the memory is cleared of any sensitive information and provides more choices of encryption algorithm.
+This is a major rework of the original version 1.x of the plugin, it is recommended that older version is no longer used as this version attempts to make sure that the memory is cleared of any sensitive information and provides more choices of encryption algorithm.
 
 **_Please note:_**
 The plugin requires version 2.41 of KeePass and will not work with older version of KeePass, however you may open an older version of the MultiCipher encoded KeePass database which will result in an upgrade to this version.
@@ -39,8 +39,8 @@ Position|Length (Bytes)|Content
 0x46|___i2___|Random IV bytes for 2nd Cipher
 0x46+___i2___|0x08|___SR___ stored as LittleEndian (defult value `10000` for 2nd Cipher)
 0x4E+___i2___|0x04|___n___ stored as LittleEndian
-0x52+___i2___|___bl___|Cipher 1 applied on (___nb...___ XORred with ___mb...___)
-0x52+___i2___+___bl___|___bl___|Cipher 2 applied on (___mb...___)
+0x52+___i2___|___bl___|Cipher 1 applied on ( ___nb...___ XORred with ___mb...___ )
+0x52+___i2___+___bl___|___bl___|Cipher 2 applied on ( ___mb...___ )
 
 #### Cipher
 **___C___ is defined as**

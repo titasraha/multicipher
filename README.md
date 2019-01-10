@@ -72,7 +72,7 @@ Byte Value|___K2___ generated as
 * ___K2___ = As genererated based on ___K2Opt___
 * AesKdf = KeePass provided AES Key Derivation Function
 * ___KDFResult___ = AesKdf on ___K2___ with ___S2___ and ___SR___ as parameters
-* ___XORredPlainTextHash___ = SHA256 of first ___n___ bytes of (___nb...___ XORred with ___mb...___)
+* ___XORredPlainTextHash___ = SHA256 of first ___n___ bytes of ( ___nb...___ XORred with ___mb...___ )
 * IV is randomly generated
 * Symmetric Key is generted by Performing SHA256 on (___M2___ + ___KDFResult___ +  ___XORredPlainTextHash___).
 

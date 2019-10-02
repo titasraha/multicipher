@@ -43,8 +43,27 @@
     <Compile Include="AES3DESStream.cs" />
     <Compile Include="CipherInfo.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConfigYubikey.cs" />
     <Compile Include="DualCipherStream.cs" />
     <Compile Include="ISingleCipherTransform.cs" />
+    <Compile Include="KeeChallenge\KeyEntry.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeeChallenge\KeyEntry.designer.cs">
+      <DependentUpon>KeyEntry.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeeChallenge\Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="KeeChallenge\YubiPrompt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeeChallenge\YubiPrompt.designer.cs">
+      <DependentUpon>YubiPrompt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeeChallenge\YubiWrapper.cs" />
     <Compile Include="MultiCipherEngine.cs" />
     <Compile Include="MultiCipherExt.cs" />
     <Compile Include="PasswordFrm.cs">
@@ -63,16 +82,45 @@
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Tools.cs" />
+    <Compile Include="Yubikey\RecoveryKeyFrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Yubikey\RecoveryKeyFrm.Designer.cs">
+      <DependentUpon>RecoveryKeyFrm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Yubikey\VerifyFrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Yubikey\VerifyFrm.Designer.cs">
+      <DependentUpon>VerifyFrm.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="KeeChallenge\KeyEntry.resx">
+      <DependentUpon>KeyEntry.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeeChallenge\Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeeChallenge\YubiPrompt.resx">
+      <DependentUpon>YubiPrompt.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PasswordFrm.resx">
       <DependentUpon>PasswordFrm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Yubikey\RecoveryKeyFrm.resx">
+      <DependentUpon>RecoveryKeyFrm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Yubikey\VerifyFrm.resx">
+      <DependentUpon>VerifyFrm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="KeeChallenge\README.md" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
@@ -81,8 +129,9 @@
       <Name>KeePass</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="plugin\" />
+    <Content Include="ChangeLog.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

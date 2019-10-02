@@ -45,7 +45,6 @@ namespace MultiCipher
         private Configuration m_Config;
         private byte[] m_1Key32;
         private byte[] m_1IV16;
-        private CompositeKey m_2Key;
         private bool Is_Disposed;
 
 
@@ -80,16 +79,6 @@ namespace MultiCipher
 
         private void InitWrite()
         {
-
-            if (m_Config.KeyOption == KeyOption.DualPassword)
-            {
-                m_2Key = m_Config.GetNewDualPassword(false);
-                if (m_2Key == null)
-                    throw new Exception("Unable to encrypt data");
-            }
-            else
-                m_2Key = DeriveDualKey(m_Config.Host.Database.MasterKey);
-
             m_WriteBytesLength = 0;
             m_WriteDataBytesList = new List<byte[]>();
         }
@@ -106,8 +95,12 @@ namespace MultiCipher
             {
                 // File format version has been read
                 var Subversion = m_sBaseStream.ReadByte(); // Subversion 
-                if (Subversion != 0)
-                    throw new InvalidDataException("Invalid subversion");
+                if (Subversion != 0 && Subversion != 1)
+                    throw new InvalidDataException("Invalid sub version, please check for newer MultiCipher Plugin");
+
+                if (Subversion == 0)
+                    MessageService.ShowWarning("MultiCipher Plugin:", "You are opening Version 2.0 of MultiCipher Keepass Database, a one way upgrade will be performed to version 2.1.", "Once saved, you will not be able to open the database in an older version of the plugin.");
+
 
                 m_Config.Algorithm1 = (SymAlgoCode)m_sBaseStream.ReadByte();
                 Cipher1 = new CipherInfo(m_Config.Algorithm1);
@@ -118,13 +111,14 @@ namespace MultiCipher
 
                 m_Config.KeyOption = (KeyOption)m_sBaseStream.ReadByte();
 
-                if (m_Config.KeyOption == KeyOption.DualPassword)
-                    m_2Key = m_Config.GetDualPassword();
-                else
-                    m_2Key = DeriveDualKey(m_Config.Host.Database.MasterKey);
+                if (m_Config.KeyOption == KeyOption.Yubikey_HMAC_SHA1)
+                {
+                    m_Config.YubikeySlot = (byte)m_sBaseStream.ReadByte();
+                    m_Config.YubikeyChallengeLength = (byte)m_sBaseStream.ReadByte();
+                    m_Config.YubikeyChallenge = new byte[64];
+                    m_sBaseStream.Read(m_Config.YubikeyChallenge, 0, 64);
+                }
 
-                if (m_2Key == null)
-                    throw new SecurityException("Invalid Key");
 
                 m_sBaseStream.ReadByte(); // Derivation Method ignore for now
 
@@ -169,7 +163,7 @@ namespace MultiCipher
                 if (read != ContentBufferLength)
                     throw new InvalidDataException("Invalid Data length 2");
 
-                Key2 = GetKey32(PlainTextHash32.Hash, MasterSeed, TransformSeed, NumRounds);
+                Key2 = m_Config.Get2ndKey32(PlainTextHash32.Hash, MasterSeed, TransformSeed);
                 Cipher2.SetKey(Key2, IV2);
 
 
@@ -200,15 +194,7 @@ namespace MultiCipher
         }
 
 
-        private CompositeKey DeriveDualKey(CompositeKey MasterKey)
-        {
-            CompositeKey NewKey = new CompositeKey();
-            foreach (var Key in MasterKey.UserKeys)
-                NewKey.AddUserKey(Key);
 
-            NewKey.AddUserKey(new KcpPassword("TR"));
-            return NewKey;
-        }
 
         // use 64 byte block align
         private int Get64BlockAlignSize(int Length)
@@ -220,57 +206,7 @@ namespace MultiCipher
             return Length + 64 - Remainder;
         }
 
-        /// <summary>
-        /// Generates the key based on m_2Key, m_PlainTextHash32 and the seed parameters
-        /// </summary>
-        /// <param name="MasterSeed">Seed used to generate the key from m_2Key</param>
-        /// <param name="TransformSeed">Seed for key transformation</param>
-        /// <param name="NumRounds">Iteration count of transformation</param>
-        /// <returns></returns>
-        private byte[] GetKey32(byte[] Hash, byte[] MasterSeed, byte[] TransformSeed, ulong NumRounds)
-        {
-            byte[] GeneratedKey = new byte[32];
-
-            byte[] HashBuffer = new byte[32 + 32 + 32]; // MasterSeed + DualKey + FirstStreamHash
-            byte[] Key256Bits = null;
-            byte[] pKey32 = null;           
-
-            try
-            {
-                Array.Copy(MasterSeed, 0, HashBuffer, 0, 32);
-
-                KdfParameters KdfParams = new AesKdf().GetDefaultParameters();
-                KdfParams.SetUInt64(AesKdf.ParamRounds, NumRounds);
-                KdfParams.SetByteArray(AesKdf.ParamSeed, TransformSeed);
-
-
-                ProtectedBinary pbinKey = m_2Key.GenerateKey32(KdfParams);
-                if (pbinKey == null)
-                    throw new SecurityException("Invalid Key");
-
-                pKey32 = pbinKey.ReadData();
-                if ((pKey32 == null) || (pKey32.Length != 32))
-                    throw new SecurityException("Invalid Key Data");
-
-                Array.Copy(pKey32, 0, HashBuffer, 32, 32);
-                Array.Copy(Hash, 0, HashBuffer, 64, 32);
-
-                SHA256Managed sha = new SHA256Managed();
-                Key256Bits = sha.ComputeHash(HashBuffer);
-
-                Array.Copy(Key256Bits, GeneratedKey, 32);
-                
-            }
-            finally
-            {
-                MemUtil.ZeroByteArray(HashBuffer);
-                if (Key256Bits != null) MemUtil.ZeroByteArray(Key256Bits);
-                if (pKey32 != null) MemUtil.ZeroByteArray(pKey32);
-            }
-
-            return GeneratedKey;
-
-        }
+       
 
         public override int Read(byte[] buffer, int offset, int count)
         {
@@ -360,27 +296,30 @@ namespace MultiCipher
 
                         // 2nd Cipher initialization information          
                         Cipher2 = new CipherInfo(m_Config.Algorithm2);
-                        byte[] MasterSeed = RndGenerator.GetRandomBytes(32);
-                        byte[] TransformSeed = RndGenerator.GetRandomBytes(32);
                         IV2 = RndGenerator.GetRandomBytes(Cipher2.IVSizeInBytes);
-                        ulong NumRounds = m_Config.Key2Transformations;
 
-                        Key2 = GetKey32(XORedTextHash32.Hash, MasterSeed, TransformSeed, NumRounds);
+                        Key2 = m_Config.Get2ndKey32(XORedTextHash32.Hash);
                         Cipher2.SetKey(Key2, IV2);
 
                         ///////  Start writing to base stream //////////
                         
                         m_sBaseStream.WriteByte(2);  // File Version 2
-                        m_sBaseStream.WriteByte(0);  // Sub Version value currently 0
+                        m_sBaseStream.WriteByte(1);  // Sub Version
                         m_sBaseStream.WriteByte((byte)m_Config.Algorithm1);
                         m_sBaseStream.WriteByte((byte)m_Config.Algorithm2);
                         m_sBaseStream.WriteByte((byte)m_Config.KeyOption);
-                        m_sBaseStream.WriteByte(1);   // Key derivation method
+                        if (m_Config.KeyOption == KeyOption.Yubikey_HMAC_SHA1)   // Is Yubikey option?
+                        {
+                            m_sBaseStream.WriteByte(m_Config.YubikeySlot); // Yubikey Slot
+                            m_sBaseStream.WriteByte(m_Config.YubikeyChallengeLength);
+                            m_sBaseStream.Write(m_Config.YubikeyChallenge, 0, 64); // Yubikey Challenge
+                        }
+                        m_sBaseStream.WriteByte((byte)m_Config.KeyDerivation);   // Key derivation method
 
-                        m_sBaseStream.Write(MasterSeed, 0, 32);
-                        m_sBaseStream.Write(TransformSeed, 0, 32);
+                        m_sBaseStream.Write(m_Config.MasterSeed, 0, 32);
+                        m_sBaseStream.Write(m_Config.TransformSeed, 0, 32);
                         m_sBaseStream.Write(IV2, 0, IV2.Length);
-                        m_sBaseStream.Write(Extensions.GetLittleEndianBytes(NumRounds), 0, 8);
+                        m_sBaseStream.Write(Extensions.GetLittleEndianBytes(m_Config.Key2Transformations), 0, 8);
                         m_sBaseStream.Write(Extensions.GetLittleEndianBytes(m_WriteBytesLength), 0, 4); // Write the length
 
                         m_sBaseStream.Write(Encrypted1Buffer, 0, BufferSize);

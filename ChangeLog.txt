@@ -1,0 +1,9 @@
+﻿Version 2.0
+===========
+* Improvements, bug fixes
+* ChaCha20 Sala cipher added
+
+Version 2.1 (2019-10-02)
+===========
+* Yubikey HMAC-SHA1 support
+* Added this changelog file

@@ -36,6 +36,7 @@ Position|Length (Bytes)|Content
 0x04|0x01|___K2Opt___ (See Below)
 
 **If ___K2Opt___ is 2**
+
 Position|Length (Bytes)|Content
 ----|----|-----
 0x05|0x01|Yubikey Slot (1 or 2)
@@ -52,6 +53,7 @@ Position|Length (Bytes)|Content
 
 
 **If ___K2Opt___ is not 2**
+
 Position|Length (Bytes)|Content
 ----|----|-----
 0x05|0x01|Key Derivation Method (`1` - AESKDF)

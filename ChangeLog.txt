@@ -7,3 +7,6 @@ Version 2.1 (2019-10-02)
 ===========
 * Yubikey HMAC-SHA1 support
 * Added this changelog file
+
+Version 2.1.1 (2019-10-30)
+* FIX: Read till end of file to work properly with newer KeePass file version

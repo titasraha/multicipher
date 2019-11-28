@@ -180,6 +180,7 @@ namespace MultiCipher
                     Array.Clear(ContentBuffer2, 0, ContentBuffer2.Length);
                 }
 
+                m_sBaseStream.Read(ContentBuffer2, 0, 1);  // read past end
 
                 m_ReadPlainTextStream = new MemoryStream(PlainTextBuffer, 0, PlainTextLength, false, true);
             }

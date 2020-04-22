@@ -34,6 +34,8 @@ namespace MultiCipher
     internal class DualCipherStream: MultiCipherStream
     {
 
+        private const int SUB_VERSION = 2;
+
         // Read
         private MemoryStream m_ReadPlainTextStream;
 
@@ -95,11 +97,11 @@ namespace MultiCipher
             {
                 // File format version has been read
                 var Subversion = m_sBaseStream.ReadByte(); // Subversion 
-                if (Subversion != 0 && Subversion != 1)
+                if (Subversion > SUB_VERSION)
                     throw new InvalidDataException("Invalid sub version, please check for newer MultiCipher Plugin");
-
-                if (Subversion == 0)
-                    MessageService.ShowWarning("MultiCipher Plugin:", "You are opening Version 2.0 of MultiCipher Keepass Database, a one way upgrade will be performed to version 2.1.", "Once saved, you will not be able to open the database in an older version of the plugin.");
+                
+                if (Subversion != SUB_VERSION)
+                    MessageService.ShowWarning("MultiCipher Plugin:", string.Format("You are opening Version 2.{0} of MultiCipher Keepass Database, a one way upgrade will be performed to version 2.2", Subversion), "Once saved, you will not be able to open the database in an older version of the plugin.");                
 
 
                 m_Config.Algorithm1 = (SymAlgoCode)m_sBaseStream.ReadByte();
@@ -305,7 +307,7 @@ namespace MultiCipher
                         ///////  Start writing to base stream //////////
                         
                         m_sBaseStream.WriteByte(2);  // File Version 2
-                        m_sBaseStream.WriteByte(1);  // Sub Version
+                        m_sBaseStream.WriteByte(SUB_VERSION);  // Sub Version
                         m_sBaseStream.WriteByte((byte)m_Config.Algorithm1);
                         m_sBaseStream.WriteByte((byte)m_Config.Algorithm2);
                         m_sBaseStream.WriteByte((byte)m_Config.KeyOption);

@@ -64,6 +64,7 @@
       <DependentUpon>YubiPrompt.cs</DependentUpon>
     </Compile>
     <Compile Include="KeeChallenge\YubiWrapper.cs" />
+    <Compile Include="Medved\TwoFish.cs" />
     <Compile Include="MultiCipherEngine.cs" />
     <Compile Include="MultiCipherExt.cs" />
     <Compile Include="PasswordFrm.cs">

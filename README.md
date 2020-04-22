@@ -2,13 +2,15 @@
 This is a dual cipher model with independent keys that uses two ciphers to encrypt the KeePass database doubling the data length with random pad. It follows a method as mentioned by Bruce Schneier in his book "Applied Cryptography".
 
 
-## Version 2.1 for KeePass >= 2.41
-MultiCipher now supports Yubikey HMAC-SHA1 Challenge/Response
+## Version 2.2 for KeePass >= 2.41
+MultiCipher now supports 
+* Yubikey HMAC-SHA1 Challenge/Response
+* Twofish cipher, thanks to [Josip Medved](https://github.com/medo64/Medo/blob/master/Source/Medo/Security/Cryptography/Twofish%20%5b003%5d.cs)
 
 **_Please note:_**
 The plugin requires version 2.41 of KeePass and will not work with older version of KeePass, however you may open an older version of the MultiCipher encoded KeePass database which will result in an upgrade to this version.
 
-#### Version 2.1 Data Format
+#### Version 2.2 Data Format (no change from version 2.1)
 * ___n...___ = Plain Text
 * ___n___ = Plain Text Length in bytes
 * ___b___ = Block pad length in bytes = `64` - ___n___ % `64` (but `0` if ___n___ % `64` is `0`)
@@ -30,7 +32,7 @@ The plugin requires version 2.41 of KeePass and will not work with older version
 Position|Length (Bytes)|Content
 ----|----|-----
 0x00|0x01|File Version (`2`)
-0x01|0x01|Sub Version (`1`)
+0x01|0x01|Sub Version (`2`)
 0x02|0x01|___C___ (First Cipher)
 0x03|0x01|___C___ (Second Cipher)
 0x04|0x01|___K2Opt___ (See Below)
@@ -73,7 +75,8 @@ Byte Value|Algorithm|IV Size (___i2___)
 `1`|AES      | 16
 `2`|3DES     | 8
 `3`|ChaCha20 | 12
-`4`|Salsa20  | 8 
+`4`|Salsa20  | 8
+`5`|Twofish  | 16
 
 ### Symmetric Key Derivation
 

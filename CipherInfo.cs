@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Security;
 using System.Security.Cryptography;
 using System.ComponentModel;
+using MultiCipher.Medved;
 using KeePassLib.Cryptography;
 
 namespace MultiCipher
@@ -38,7 +39,8 @@ namespace MultiCipher
                 new SymAlgoInfo() { SymAlgoCode = SymAlgoCode.AES256, Description="AES/Rijndael (256-bit Key)", IVSize = 16, KeySize = 32 },
                 new SymAlgoInfo() { SymAlgoCode = SymAlgoCode.ThreeDES, Description="3DES (192-bit Key)", IVSize = 8, KeySize = 24 },
                 new SymAlgoInfo() { SymAlgoCode = SymAlgoCode.ChaCha20, Description="ChaCha20 (256-bit Key) KeePass Implementation", IVSize = 12, KeySize = 32 },
-                new SymAlgoInfo() { SymAlgoCode = SymAlgoCode.Salsa20, Description="Salsa20 (256-bit Key) KeePass Implementation", IVSize = 8, KeySize = 32 }
+                new SymAlgoInfo() { SymAlgoCode = SymAlgoCode.Salsa20, Description="Salsa20 (256-bit Key) KeePass Implementation", IVSize = 8, KeySize = 32 },
+                new SymAlgoInfo() { SymAlgoCode = SymAlgoCode.Twofish, Description="Twofish (256-bit Key) Josip Medved", IVSize = 16, KeySize = 32 }
             };
 
         }
@@ -84,7 +86,7 @@ namespace MultiCipher
 
         public ISingleCipherTransform GetCipherTransformer()
         {                          
-            if (m_SymAlgo == SymAlgoCode.AES256 || m_SymAlgo == SymAlgoCode.ThreeDES)
+            if (m_SymAlgo == SymAlgoCode.AES256 || m_SymAlgo == SymAlgoCode.ThreeDES || m_SymAlgo == SymAlgoCode.Twofish)
             {
                 SymmetricAlgorithm SymAlgo;
 
@@ -102,7 +104,7 @@ namespace MultiCipher
 
 
                 }
-                else
+                else if (m_SymAlgo == SymAlgoCode.AES256)
                     SymAlgo = new RijndaelManaged
                     {
                         BlockSize = 128,
@@ -112,7 +114,17 @@ namespace MultiCipher
                         Mode = CipherMode.CBC,
                         Padding = PaddingMode.None
                     };
-                                  
+                else
+                    SymAlgo = new TwofishManaged
+                    {
+                        BlockSize = 128,
+                        IV = m_IV,
+                        KeySize = 256,
+                        Key = m_Key,
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.None
+                    };
+
                 return new CryptoTransformer(SymAlgo);
             }
             else if (m_SymAlgo == SymAlgoCode.ChaCha20 || m_SymAlgo == SymAlgoCode.Salsa20)
@@ -165,6 +177,8 @@ namespace MultiCipher
         [Description("ChaCha20 ")]
         ChaCha20 = 3,
         [Description("Salsa20")]
-        Salsa20 = 4
+        Salsa20 = 4,
+        [Description("Twofish")]
+        Twofish = 5
     }
 }

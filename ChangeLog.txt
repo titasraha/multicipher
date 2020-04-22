@@ -9,4 +9,9 @@ Version 2.1 (2019-10-02)
 * Added this changelog file
 
 Version 2.1.1 (2019-10-30)
+=============
 * FIX: Read till end of file to work properly with newer KeePass file version
+
+Version 2.2 (2020-04-21)
+===========
+* Added TwoFish as option
